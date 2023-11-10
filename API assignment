@@ -1,0 +1,101 @@
+import requests
+
+
+token = input("Enter your Webex token: ")
+
+
+webex_base_url = "https://api.ciscospark.com/v1"
+
+
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json"
+}
+
+def test_connection():
+ 
+    response = requests.get(f"{webex_base_url}/people/me", headers=headers)
+
+    if response.status_code == 200:
+        print("Connection with Webex server successful.")
+    else:
+        print("Connection failed. Please check your token and try again.")
+
+def display_user_info():
+ 
+    response = requests.get(f"{webex_base_url}/people/me", headers=headers)
+
+    if response.status_code == 200:
+        user_info = response.json()
+        print(f"Display Name: {user_info['displayName']}")
+        print(f"Nickname: {user_info['nickName']}")
+        print(f"Emails: {', '.join(user_info['emails'])}")
+    else:
+        print("Failed to fetch user information. Please check your token and try again.")
+
+def list_rooms():
+
+    response = requests.get(f"{webex_base_url}/rooms", headers=headers)
+
+    if response.status_code == 200:
+        rooms = response.json()["items"]
+        for room in rooms:
+            print(f"Room ID: {room['id']}")
+            print(f"Room Title: {room['title']}")
+            print(f"Date Created: {room['created']}")
+            print(f"Last Activity: {room['lastActivity']}")
+            print()
+
+def create_room():
+    room_title = input("Enter the title of the room: ")
+    payload = {"title": room_title}
+
+   
+    response = requests.post(f"{webex_base_url}/rooms", headers=headers, json=payload)
+
+    if response.status_code == 200:
+        print("Room created successfully.")
+    else:
+        print("Failed to create the room. Please check your token and try again.")
+
+def send_message():
+    list_rooms()
+    room_id = input("Enter the Room ID to send a message to: ")
+    message = input("Enter the message you want to send: ")
+
+    payload = {"roomId": room_id, "text": message}
+
+
+    response = requests.post(f"{webex_base_url}/messages", headers=headers, json=payload)
+
+    if response.status_code == 200:
+        print("Message sent successfully.")
+    else:
+        print("Failed to send the message. Please check your token and try again.")
+
+
+while True:
+    print("Main Menu")
+    print("0. Test Connection")
+    print("1. Display User Information")
+    print("2. List Rooms")
+    print("3. Create a Room")
+    print("4. Send Message to a Room")
+    print("5. Exit")
+    
+    choice = input("Enter your choice (0-5): ")
+
+    if choice == "0":
+        test_connection()
+    elif choice == "1":
+        display_user_info()
+    elif choice == "2":
+        list_rooms()
+    elif choice == "3":
+        create_room()
+    elif choice == "4":
+        send_message()
+    elif choice == "5":
+        break
+    else:
+        print("Invalid choice. Please try again.")
